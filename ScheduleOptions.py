@@ -1,3 +1,51 @@
+class Node():
+    def __init__(self, data=None, nextNode=None):
+        self.data = data
+        self.nextNode = nextNode
+        
+    def getData(self):
+        return self.data
+    def setData(self, data):
+        self.data = self
+        
+    def getNext(self):
+        return self.nextNode
+    def setNext(self, nextNode):
+        self.nextNode = nextNode   
+
+class LinkedList():
+    def __init__(self, first=None):
+        self.first = first
+    
+    def add(self, data, sort=False):
+        newNode = Node(data, self.first)
+        self.first = newNode   
+        
+    def insert(self, data, pNode):
+        newNode = Node(data, pNode.getNext())
+        pNode.setNext(newNode)
+        
+    def getNode(self,index):
+        currNode = self.first
+        for each in range(0, index):
+            currNode = currNode.getNext()
+        return currNode 
+    
+    def getLen(self):
+        try:
+            length = len(self.getList())
+            return length
+        except:
+            return 0
+    
+    def getList(self):
+        currNode = self.first
+        listForm = [currNode.getData()]
+        while(currNode.getNext() != None):
+            currNode = currNode.getNext()
+            listForm.append(currNode.getData())
+        return listForm
+               
 class Time():
     def __init__(self, string):
         self.original = string
@@ -16,31 +64,45 @@ class TimePeriod():
     
     def __str__(self):
         return self.original
+
+class Class():
+    def __init__(self, classType, section):
+        self.number = classType[0]
+        self.name = classType[1]
+        self.days = section[0]
+        self.time = TimePeriod(section[1])
+        self.room = section[2]
+        self.prof = section[3]
     
-def sortDays(classes):
-    pm = []
-    am = []
-    added = False
+    def __str__(self):
+        output = str(self.number)+" "+str(self.name)+"\n\t"
+        output+= str(self.days)+'\t'+str(self.time)+'\t'+str(self.room)+'\t'+str(self.prof)
+        return output
     
-    for each in classes:
-        if each[3].start.name == 'pm':
-            pm.append(each)
-            continue
-            if(len(pm) == 0):
-                pm.append(each)
-            else:
-                for i in range(0, len(pm)):
-                    if(each[3].start.hour%12 <pm[i][3].start.hour%12):
-                        print("New element added at", i)
-                        pm.insert(each, i)
-                        added = True
-                        break
-                if not added:
-                    pm.append(each)
-                added = False
+    def getTime(self):
+        return self.time.start.hour
+    
+    def ampm(self):
+        return self.time.start.name
+    
+    def compare(self, other):
+        if(self.getTime%12 > other.getTime%12):
+            return 1
+        if(self.getTime%12 < other.getTime%12):
+            return -1
+        return 0
+
+def sortDays(days):
+    am = LinkedList()
+    pm = LinkedList()
+    
+    for day in days:
+        if(day.ampm() == "am"):
+            am.add(day, True)
         else:
-                am.append(each)  
-    return am+pm
+            pm.add(day, True)
+    return am.getList()+pm.getList()
+    
 
 def printClasses(classes):
     Monday = [["Monday:"]]
@@ -52,27 +114,21 @@ def printClasses(classes):
     for each in classes:
         for section in classes[each]:
             if 'M' in section[0]:
-                Monday.append([each[0], each[1], section[0], TimePeriod(section[1]), section[2], section[3]])
+                Monday.append(Class(each, section))
             if 'T' in section[0]:
-                Tuesday.append([each[0], each[1], section[0], TimePeriod(section[1]), section[2], section[3]])
+                Tuesday.append(Class(each, section))
             if 'W' in section[0]:
-                Wednesday.append([each[0], each[1], section[0], TimePeriod(section[1]), section[2], section[3]])
+                Wednesday.append(Class(each, section))
             if 'R' in section[0]:
-                Thursday.append([each[0], each[1], section[0], TimePeriod(section[1]), section[2], section[3]])
+                Thursday.append(Class(each, section))
             if 'F' in section[0]:
-                Friday.append([each[0], each[1], section[0], TimePeriod(section[1]), section[2], section[3]])                 
+                Friday.append(Class(each, section))                 
     days = [Monday, Tuesday, Wednesday, Thursday, Friday]
     
     for day in days:
         print(day[0])
-        try:
-            for item in sortDays(day[1:]):
-                print(item[0], item[1], "\n\t", end = '')
-                for each in item[2:]:
-                    print(str(each)+"\t", end='')
-                print('')
-        except:
-            continue
+        for each in sortDays(day[1:]):
+            print(each)
         print('')
 
 #Asks user for classes to search for
@@ -139,7 +195,5 @@ def main():
     except: 
         #print("ERROR")
         main()
-        
     
-
 main()
