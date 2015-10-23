@@ -60,6 +60,13 @@ class LinkedList():
             currNode = currNode.getNext()
             listForm.append(currNode.getData())
         return listForm[1:]
+    
+    def __add__(self, other):
+        currNode = other.first
+        while(currNode.getNext().getData() != None):
+            currNode = currNode.getNext()
+            self.append(currNode.getData())
+        return self        
                
 class Time():
     def __init__(self, string):
@@ -106,7 +113,7 @@ class Class():
         if(self.getTime()%12 < other.getTime()%12):
             return -1
         return 0
-
+ 
 def sortDays(days):
     am = LinkedList()
     pm = LinkedList()
@@ -137,8 +144,8 @@ def sortDays(days):
                 if not added:
                     pm.append(day)
                 added = False
-    return am.getList()+pm.getList()
-    
+    #return am.getList()+pm.getList()
+    return (am+pm).getList()
 
 def printClasses(classes):
     Monday = [["Monday:"]]
@@ -160,12 +167,14 @@ def printClasses(classes):
             if 'F' in section[0]:
                 Friday.append(Class(each, section))                 
     days = [Monday, Tuesday, Wednesday, Thursday, Friday]
-    
+    ScheduleOptions = []
     for day in days:
         print(day[0])
+        ScheduleOptions.append(sortDays(day[1:]))
         for each in sortDays(day[1:]):
             print(each)
         print('')
+    return ScheduleOptions
 
 #Asks user for classes to search for
 def getPossibilities():
@@ -181,55 +190,47 @@ def getPossibilities():
         
 def main():
     #masterSchedule = input("Enter master schedule file name or return for last entered:")
-    try:
-        #clear the data of blank lines
-        schedule = open("MasterClassSchedule.txt", 'r')
-        formattedSchedule = open("formatted.txt", 'w')
-        for each in schedule.readlines():
-            if each != '\n' and each != ' \n':
-                formattedSchedule.write(each)
-        schedule.close()
-        formattedSchedule.close()
+    #clear the data of blank lines
+    schedule = open("MasterClassSchedule.txt", 'r')
+    formattedSchedule = open("formatted.txt", 'w')
+    for each in schedule.readlines():
+        if each != '\n' and each != ' \n':
+            formattedSchedule.write(each)
+    schedule.close()
+    formattedSchedule.close()
         
-        #save data to a list
-        formattedSchedule = open("formatted.txt", 'r')
-        classList = formattedSchedule.readlines()
-        formattedSchedule.close()
+    #save data to a list
+    formattedSchedule = open("formatted.txt", 'r')
+    classList = formattedSchedule.readlines()
+    formattedSchedule.close()
 
-        possibilities = getPossibilities()
+    possibilities = getPossibilities()
         
-        #Remove extra formatting
-        for each in range(0, len(classList)):
-            classList[each] = classList[each].strip("\n")
-            classList[each] = classList[each].strip("\t")
+    #Remove extra formatting
+    for each in range(0, len(classList)):
+        classList[each] = classList[each].strip("\n")
+        classList[each] = classList[each].strip("\t")
             
-        try:
-            classes = {}
-            index = -1
-            while(True):
-                index +=1
-                if classList[index] == "View Textbooks": #find anchor in list
-                    if classList[index-1] in possibilities or classList[index-3] in possibilities: #found name of class
-                        name = classList[index-1]
-                        number = classList[index-3]
-                        try:
-                            while('-' not in classList[index]):
-                                index+=1
-                            while('-' in classList[index]):
-                                index+=1
-                            classes[(number, name)].append(classList[index:index+4])
-                        except KeyError:
-                            classes[(number, name)] = [classList[index:index+4]]
+    try:
+        classes = {}
+        index = -1
+        while(True):
+            index +=1
+            if classList[index] == "View Textbooks": #find anchor in list
+                if classList[index-1] in possibilities or classList[index-3] in possibilities: #found name of class
+                    name = classList[index-1]
+                    number = classList[index-3]
+                    try:
+                        while('-' not in classList[index]):
+                            index+=1
+                        while('-' in classList[index]):
+                            index+=1
+                        classes[(number, name)].append(classList[index:index+4])
+                    except KeyError:
+                        classes[(number, name)] = [classList[index:index+4]]
                 
-        except Exception as ex: #done going through list
-            printClasses(classes)
-            while(true):
-                i = input()            
-            #print(classes)
-        
-        
-    except: 
-        #print("ERROR")
-        main()
-    
-main()
+    except Exception as ex: #done going through list
+        Options = printClasses(classes)
+        return Options
+ 
+#main()
