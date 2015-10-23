@@ -1,7 +1,8 @@
 class Node():
-    def __init__(self, data=None, nextNode=None):
+    def __init__(self, data=None, nextNode=None, prevNode=None):
         self.data = data
         self.nextNode = nextNode
+        self.prevNode = prevNode
         
     def getData(self):
         return self.data
@@ -12,18 +13,32 @@ class Node():
         return self.nextNode
     def setNext(self, nextNode):
         self.nextNode = nextNode   
+        
+    def getPrev(self):
+        return self.nextPrev
+    def setPrev(self, nextPrev):
+        self.nextPrev = nextPrev     
 
 class LinkedList():
-    def __init__(self, first=None):
-        self.first = first
+    def __init__(self):
+        self.first = Node(None)
+        self.last = Node(None, None, self.first)
+        self.first.setNext(self.last)
     
-    def add(self, data, sort=False):
-        newNode = Node(data, self.first)
-        self.first = newNode   
+    def add(self, data):
+        newNode = Node(data, self.first.getNext(), self.first)
+        self.first.getNext().setPrev(newNode)
+        self.first.setNext(newNode)
         
-    def insert(self, data, pNode):
-        newNode = Node(data, pNode.getNext())
-        pNode.setNext(newNode)
+    def append(self, data):
+        newNode = Node(data, self.last, self.last.getPrev())
+        self.last.getPrev().setNext(newNode)
+        self.last.setPrev(newNode)
+        
+    def insert(self, data, aNode):
+        newNode = Node(data, aNode.getNext(), aNode)
+        aNode.getNext().setPrev(newNode)
+        aNode.setNext(newNode)
         
     def getNode(self,index):
         currNode = self.first
@@ -41,10 +56,10 @@ class LinkedList():
     def getList(self):
         currNode = self.first
         listForm = [currNode.getData()]
-        while(currNode.getNext() != None):
+        while(currNode.getNext().getData() != None):
             currNode = currNode.getNext()
             listForm.append(currNode.getData())
-        return listForm
+        return listForm[1:]
                
 class Time():
     def __init__(self, string):
@@ -86,21 +101,42 @@ class Class():
         return self.time.start.name
     
     def compare(self, other):
-        if(self.getTime%12 > other.getTime%12):
+        if(self.getTime()%12 > other.getTime()%12):
             return 1
-        if(self.getTime%12 < other.getTime%12):
+        if(self.getTime()%12 < other.getTime()%12):
             return -1
         return 0
 
 def sortDays(days):
     am = LinkedList()
     pm = LinkedList()
+    added = False
     
     for day in days:
         if(day.ampm() == "am"):
-            am.add(day, True)
+            if(am.getLen()<=0):
+                am.add(day)
+            else:
+                for i in range(1, am.getLen()+1):
+                    if(am.getNode(i).getData().compare(day)>=0):
+                        am.insert(day, am.getNode(i-1))
+                        added = True
+                        break
+                if not added:
+                    am.append(day)
+                added = False
         else:
-            pm.add(day, True)
+            if(pm.getLen()<=0):
+                pm.add(day)
+            else:
+                for i in range(1, pm.getLen()+1):
+                    if(pm.getNode(i).getData().compare(day)>=0):
+                        pm.insert(day, pm.getNode(i-1))
+                        added = True
+                        break
+                if not added:
+                    pm.append(day)
+                added = False
     return am.getList()+pm.getList()
     
 
