@@ -169,11 +169,11 @@ def printClasses(classes):
     days = [Monday, Tuesday, Wednesday, Thursday, Friday]
     ScheduleOptions = []
     for day in days:
-        print(day[0])
+        #print(day[0])
         ScheduleOptions.append(sortDays(day[1:]))
-        for each in sortDays(day[1:]):
-            print(each)
-        print('')
+        #for each in sortDays(day[1:]):
+            #print(each)
+        #print('')
     return ScheduleOptions
 
 #Asks user for classes to search for
